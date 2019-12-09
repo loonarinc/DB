@@ -30,31 +30,14 @@ SELECT
     )
  ORDER BY messages DESC, friend LIMIT 1;
 /*Задание 3*/
-SELECT target_id AS mediafile, COUNT(*) AS likes 
-  FROM likes 
-    WHERE target_id IN (
-      SELECT id FROM media WHERE user_id = 3
-        UNION
-      (SELECT id FROM media WHERE user_id IN (
-        SELECT friend_id 
-          FROM friendship 
-            WHERE user_id = 3 
-              AND status_id IN (
-                SELECT id FROM friendship_statuses 
-                  WHERE name != 'Rejected'
-              )))
-        UNION
-      (SELECT id FROM media WHERE user_id IN (
-        SELECT user_id 
-          FROM friendship 
-            WHERE friend_id = 3 
-              AND status_id IN (
-                SELECT id FROM friendship_statuses 
-                  WHERE name != 'Rejected'
-              ))) 
-    )
-    AND target_type_id = (SELECT id FROM target_types WHERE name = 'photo')
-    GROUP BY target_id;
+ SELECT SUM(likes_summ.summ) AS young_users_likes
+  FROM 
+    (SELECT 
+        (SELECT COUNT(*) FROM likes	WHERE target_id = profiles.user_id AND  
+        	(SELECT id FROM target_types WHERE name = 'photo')
+        )
+        AS summ FROM profiles
+      ORDER BY birthday DESC LIMIT 10) AS likes_summ;
 
 
  /*4. Лайки мужчин и женщин*/
